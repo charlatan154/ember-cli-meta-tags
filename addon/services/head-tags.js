@@ -17,7 +17,7 @@ export default Ember.Service.extend({
     handlerInfos.forEach((handlerInfo) => {
       Ember.merge(tags, this._extractHeadTagsFromRoute(handlerInfo.handler));
     });
-    let tagArray = Ember.$.map(tags, function(tag) { return tag; });
+    let tagArray = Object.keys(tags).map(function(tagId) { return tags[tagId]; });
     this.set('renderer.headTags', Ember.A(tagArray));
   },
 

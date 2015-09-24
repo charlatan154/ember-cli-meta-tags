@@ -1,3 +1,28 @@
+import Ember from 'ember';
+
+const { set, get } = Ember;
+
+export function rendererFactory(container) {
+  let renderer = container.lookup('renderer:-dom');
+  let application = container.lookup('application:main');
+  if (renderer && !application.autoboot) {
+    let document = get(renderer, '_dom.document');
+    if (document) {
+      // fastboot is running
+      let rendererService = container.lookup(
+        'service:head-tags/fastboot-renderer'
+      );
+      set(rendererService, 'document', document);
+      return rendererService;
+    }
+  }
+  let component = container.lookup(
+    'component:head-tags'
+  );
+  component.appendTo('head');
+  return component;
+}
+
 export function initialize(instance) {
   const container = instance.lookup ? instance : instance.container;
   let service = container.lookup('service:head-tags');
@@ -6,12 +31,7 @@ export function initialize(instance) {
   });
 
   // inject renderer service
-  //TODO: build fastboot compatible renderer
-  let component = container.lookup(
-    'component:head-tags'
-  );
-  service.set('renderer', component);
-  component.appendTo('head');
+  service.set('renderer', rendererFactory(container));
 }
 
 export default {
